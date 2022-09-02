@@ -1,18 +1,20 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <!-- <AllareaForm></AllareaForm> -->
+    <UserInfoForm></UserInfoForm>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+// import AllareaForm from './components/AllareaForm.vue';
+import UserInfoForm from './components/UserInfoForm.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    // AllareaForm,
+    UserInfoForm
+}
 }
 </script>
 
@@ -21,8 +23,9 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  /* text-align: center; */
   color: #2c3e50;
-  margin-top: 60px;
+  font-size: 14px;
+  /* margin-top: 60px; */
 }
 </style>
