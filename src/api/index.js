@@ -68,3 +68,7 @@ export const saveUserInfor = ({
 //全部行政区域
 export const getAllarea = (grad) =>
   ajax("/allarea/getAllarea?grad=" + grad);
+
+//上传公告牌信息
+export const saveWorkCard = ({cardname,cardsign,level,allareaid,lati,longti}) =>
+  ajax("/workcard/saveWorkCard",{cardname,cardsign,level,allareaid,lati,longti},"POST");

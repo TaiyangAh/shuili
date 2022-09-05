@@ -1,21 +1,19 @@
 <template>
   <div id="app">
-    <!-- <AllareaForm></AllareaForm> -->
-    <UserInfoForm></UserInfoForm>
+    <!-- <UserInfoForm></UserInfoForm> -->
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-// import AllareaForm from './components/AllareaForm.vue';
-import UserInfoForm from './components/UserInfoForm.vue';
+// import UserInfoForm from './pages/UserInfoForm.vue';
 
-export default {
-  name: 'App',
-  components: {
-    // AllareaForm,
-    UserInfoForm
-}
-}
+// export default {
+//   name: 'App',
+//   components: {
+//     // UserInfoForm
+//   }
+// }
 </script>
 
 <style>
