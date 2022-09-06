@@ -21,8 +21,27 @@
       required
       is-link
       readonly
-      label="地区"
-      placeholder="请选择所在地区"
+      label="行政区划"
+      placeholder="请选择所在行政区划"
+      @click="show1 = true"
+    />
+    <van-popup v-model="show1" round position="bottom">
+      <van-cascader
+        title="请选择所在行政区划"
+        v-model="cascaderValue"
+        :options="options"
+        @change="onChangeArea"
+        @close="show = false"
+        @finish="onFinish"
+      />
+    </van-popup>
+    <van-field
+      v-model="fieldValue1"
+      required
+      is-link
+      readonly
+      label="经纬度"
+      placeholder="请选择所在经纬度"
       @click="show = true"
     />
     <van-popup v-model="show"
@@ -85,8 +104,10 @@ import {getAllarea, saveWorkCard} from "@/api/index"
 export default {
     data() {
       return {
+        show1:false,
         show: false,
         fieldValue: '',
+        fieldValue1: '',
         cascaderValue:'',
         options:[],
         visible: false,
@@ -143,7 +164,7 @@ export default {
       confirmMark() {
         this.ruleForm.longti = this.center.lng;
         this.ruleForm.lati = this.center.lat;
-        this.fieldValue = this.center.address;
+        this.fieldValue1 = this.center.address;
         this.visible = false;
         this.show = false;
       },
@@ -156,6 +177,8 @@ export default {
       onSubmit() {
         console.log("已提交")
         this.ruleForm.allareaid = this.cascaderValue
+        this.ruleForm.lati = this.center.lat
+        this.ruleForm.longti = this.center.lng
         saveWorkCard(this.ruleForm)
       },
        // 全部选项选择完毕后，会触发 finish 事件
@@ -197,10 +220,10 @@ export default {
     },
 
     created() {
-      // getAllarea(0).then(res => this.options = res.data.data.map(
-      //   (item) => {return {text:item.adname,value:item.adcode,children:null}}
-      //   )
-      // )
+      getAllarea(0).then(res => this.options = res.data.data.map(
+        (item) => {return {text:item.adname,value:item.adcode,children:null}}
+        )
+      )
      
     },
 
