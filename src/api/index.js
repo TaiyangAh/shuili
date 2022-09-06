@@ -35,40 +35,31 @@ export const saveFormDate = ({
     "POST"
   );
 //上传用户信息
-export const saveUserInfor = ({
-  account,
-  adgrad,
-  allareaid,
-  duties,
-  email,
-  organization,
-  pwd,
-  role,
-  six,
-  tel,
-  username,
-}) =>
-  ajax(
-    "/userinfor/saveUserInfor",
-    {
-      account,
-      adgrad,
-      allareaid,
-      duties,
-      email,
-      organization,
-      pwd,
-      role,
-      six,
-      tel,
-      username,
-    },
-    "POST"
-  );
+export const saveUserInfor = (data) =>
+  ajax("/userinfor/saveUserInfor", data, "POST");
 //全部行政区域
-export const getAllarea = (grad) =>
-  ajax("/allarea/getAllarea?grad=" + grad);
+export const getAllarea = (grad) => ajax("/allarea/getAllarea?grad=" + grad);
 
 //上传公告牌信息
-export const saveWorkCard = ({cardname,cardsign,level,allareaid,lati,longti}) =>
-  ajax("/workcard/saveWorkCard",{cardname,cardsign,level,allareaid,lati,longti},"POST");
+export const saveWorkCard = ({
+  cardname,
+  cardsign,
+  level,
+  allareaid,
+  lati,
+  longti,
+}) => {
+  return ajax(
+    "/workcard/saveWorkCard",
+    { cardname, cardsign, level, allareaid, lati, longti },
+    "POST"
+  );
+};
+//获取组织机构列表
+export const getOrganizationList = (adcode) => {
+  return ajax("/organization/getOrganization?adcode=", { adcode }, "GET");
+};
+// 添加组织结构
+export const saveOrganizationList = (data) => {
+  ajax("/organization/saveOrganization", data, "POST");
+};
