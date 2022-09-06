@@ -25,15 +25,34 @@
       placeholder="请选择所在地区"
       @click="show = true"
     />
-    <van-popup v-model="show" round position="bottom">
-      <van-cascader
+    <van-popup v-model="show"
+      position="bottom"
+      :style="{ height: '60%' }" round>
+      <!-- <van-loading v-if="loading" :style="{marginTop: '20vh'}" size="24px" vertical>定位加载中...
+      </van-loading> -->
+      <baidu-map
+        class="bm-view" 
+        :center="center" 
+        :zoom="zoom" 
+        @ready="handler"
+        @click="getLocationPoint"
+        >
+        <bm-marker :position="center" :dragging="false" animation="BMAP_ANIMATION_BOUNCE" @click="lookDetail()">
+          <bm-info-window :title="center.address" :position="{lng: center.lng, lat: center.lat}" :show="visible" @close="infoWindowClose()" @open="infoWindowOpen()">
+            <div v-text="'经度：'+center.lng"></div>
+            <div v-text="'纬度：'+center.lat"></div>
+            <van-button type="mini" @click="confirmMark">确认选点</van-button>
+          </bm-info-window>
+        </bm-marker>
+      </baidu-map>
+      <!-- <van-cascader
         title="请选择所在地区"
         v-model="cascaderValue"
         :options="options"
         @change="onChangeArea"
         @close="show = false"
         @finish="onFinish"
-      />
+      /> -->
     </van-popup>
     <!-- <van-field v-model="ruleForm.duties" required label="职务" placeholder="请输入职务">
     </van-field>
@@ -49,9 +68,9 @@
         </van-radio-group>
       </template>
     </van-field> -->
-    <van-field v-model="ruleForm.longti" required clearable label="经度" placeholder="请输入公告牌所在经度">
+    <van-field v-model="ruleForm.longti" required disabled clearable label="经度" placeholder="请输入公告牌所在经度">
     </van-field>
-    <van-field v-model="ruleForm.lati" required clearable label="纬度" placeholder="请输入公告牌所在纬度">
+    <van-field v-model="ruleForm.lati" required disabled clearable label="纬度" placeholder="请输入公告牌所在纬度">
     </van-field>
     <div style="margin: 16px;">
       <van-button round block type="info" @click="onSubmit" class="button">提交</van-button>
@@ -70,7 +89,12 @@ export default {
         fieldValue: '',
         cascaderValue:'',
         options:[],
+        visible: false,
+        myGeo: null,
         map:null,
+        center: {address: '', lng: 112.94547320, lat: 28.23488940},
+        detailInfo: {},
+        zoom: 10,
         ruleForm: {
           cardname: '',
           cardsign:"",
@@ -82,6 +106,53 @@ export default {
       };
     },
     methods: {
+        handler ({BMap, map}) {
+          const that = this;
+          console.log(BMap, map)
+          const BMAP_STATUS_SUCCESS = 0;
+          let geolocation = new BMap.Geolocation();
+          this.myGeo = new BMap.Geocoder();
+          geolocation.getCurrentPosition(function(r) {
+            if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+              let pt = r.point
+              that.myGeo.getLocation(pt, function (rs) {
+                    that.center.address = rs.address;
+                    that.center.lng = rs.point.lng;
+                    that.center.lat = rs.point.lat;
+                    that.zoom = 15;
+              });
+            } else {
+              alert("获取位置失败，请重试！" + this.getStatus());
+            }
+          });
+      },
+      getLocationPoint(e) {
+        let point = e.point;
+        this.myGeo.getLocation(point, res => {
+          this.center.address = res.address;
+          this.center.lng = res.point.lng;
+          this.center.lat = res.point.lat;
+          this.zoom = 15;
+          console.log(res, 'res')
+        })
+      },
+      lookDetail() {
+        this.detailInfo = this.center;
+        this.visible = true;
+      },
+      confirmMark() {
+        this.ruleForm.longti = this.center.lng;
+        this.ruleForm.lati = this.center.lat;
+        this.fieldValue = this.center.address;
+        this.visible = false;
+        this.show = false;
+      },
+      infoWindowClose() {
+        this.visible = false;
+      },
+      infoWindowOpen() {
+        this.visible = true;
+      },
       onSubmit() {
         console.log("已提交")
         this.ruleForm.allareaid = this.cascaderValue
@@ -126,10 +197,10 @@ export default {
     },
 
     created() {
-      getAllarea(0).then(res => this.options = res.data.data.map(
-        (item) => {return {text:item.adname,value:item.adcode,children:null}}
-        )
-      )
+      // getAllarea(0).then(res => this.options = res.data.data.map(
+      //   (item) => {return {text:item.adname,value:item.adcode,children:null}}
+      //   )
+      // )
      
     },
 
@@ -178,5 +249,10 @@ export default {
   }
   .form{
     margin: 16px;
+  }
+
+  .bm-view {
+    width: 100%;
+    height: 100%;
   }
 </style>
