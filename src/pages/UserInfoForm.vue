@@ -11,6 +11,9 @@
 
     <van-field v-model="ruleForm.username" required clearable label="姓名" placeholder="请输入姓名" :rules="[{ required: true}]">
     </van-field>
+    <van-field v-model="ruleForm.tel" required clearable label="手机号码" placeholder="请输入手机号码" :rules="[{ required: true, message: '' }]">
+    </van-field>
+    <span class="addOrganizationLink" style="color:red;margin-top:3px">手机号用于注册账号，随后收到短信</span>
     <van-field
       v-model="fieldValue2"
       is-link
@@ -28,27 +31,12 @@
         @finish="onFinish2"
       />
     </van-popup>
-    <van-field
-      v-model="fieldValue3" style="margin-bottom:5px"
-      is-link
-      required
-      readonly
-      label="组织机构"
-      placeholder="请选择组织机构"
-      :disabled="ruleForm.role==='0' || ruleForm.role==='1' || ruleForm.role==='2'"
-      v-if="orgLength<4"
-      @click="show3 = true"
-      :rules="[{ required: true, message: '' }]"
-    />
-      <a class="addOrganizationLink" href="javascript:;" @click="initAddOrganizationBox" v-if="orgLength<4">没有找到所属组织？</a>
     <van-field v-model="ruleForm.duties" required label="职务" placeholder="请输入职务" :rules="[{ required: true, message: '' }]">
     </van-field>
-    <van-field v-model="ruleForm.tel" required clearable label="手机号码" placeholder="请输入手机号码" :rules="[{ required: true, message: '' }]">
-    </van-field>
-    <span class="addOrganizationLink" style="color:red;margin-top:3px">手机号用于注册账号，随后收到短信</span>
     
-    <van-field v-model="ruleForm.email" label="邮箱" clearable placeholder="请输入邮箱" type="email">
-    </van-field>
+    
+    <!-- <van-field v-model="ruleForm.email" label="邮箱" clearable placeholder="请输入邮箱" type="email">
+    </van-field> -->
     <!-- <van-field name="radio" label="用户类型" required>
       <template #input>
         <van-radio-group v-model="ruleForm.role" direction="horizontal">
@@ -184,7 +172,19 @@
         @finish="onFinish"
       />
     </van-popup>
-    
+    <van-field
+      v-model="fieldValue3" style="margin-bottom:5px"
+      is-link
+      required
+      readonly
+      label="组织机构"
+      placeholder="请选择组织机构"
+      :disabled="ruleForm.role==='0' || ruleForm.role==='1' || ruleForm.role==='2'"
+      v-if="orgLength<4"
+      @click="show3 = true"
+      :rules="[{ required: true, message: '' }]"
+    />
+      <a class="addOrganizationLink" href="javascript:;" @click="initAddOrganizationBox" v-if="orgLength<4">没有找到所属组织？</a>
     <!-- <van-field name="radio" label="性别">
       <template #input>
         <van-radio-group v-model="ruleForm.six" direction="horizontal">
@@ -205,15 +205,15 @@
     </van-popup>
     <van-popup style="width:80vw; height:200px;" v-model="addOrganizationBoxShow" round position="center">
       <van-field class="addOrganizationItem" style="margin-top:30px;" v-model="ruleForm.organization" required label="组织机构名称：" placeholder="请输入组织机构名称">
-    </van-field>
-    <van-field name="radio" label="是否河长办：" v-if="ruleForm.role !=='0' && ruleForm.role !=='1' && ruleForm.role!=='2'">
+      </van-field>
+    <!-- <van-field name="radio" label="是否河长办：" v-if="ruleForm.role !=='0' && ruleForm.role !=='1' && ruleForm.role!=='2'">
       <template #input>
         <van-radio-group v-model="organization.isRv" direction="horizontal">
           <van-radio name="1">是</van-radio>
           <van-radio name="0">否</van-radio>
         </van-radio-group>
       </template>
-    </van-field>
+    </van-field> -->
      <div class="addOrganizationQueRenBox">
             <van-button round block type="info" @click="addOrganization" class="button">确认</van-button>
             <van-button round block type="info" @click="addOrganizationBoxShow = false" class="button">取消</van-button>
@@ -463,8 +463,14 @@ export default {
         this.organization.allareaid = this.cascaderValue
         this.organization.oname = this.ruleForm.organization
         this.organization.grad  = this.ruleForm.adgrad
-        console.log(this.organization)
-        saveOrganizationList(this.organization)
+        saveOrganizationList(this.organization).then(res=>{
+          console.log('res',res)
+          if(res.data.code==200){
+            this.fieldValue3 = res.data.data.oname;
+            this.ruleForm.organization = res.data.data.id
+          }
+          
+        })
         this.addOrganizationBoxShow = false
       },
       handler ({BMap, map}) {

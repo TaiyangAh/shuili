@@ -24,7 +24,7 @@ export const getOrganizationList = (adcode) => {
 };
 // 添加组织结构
 export const saveOrganizationList = (data) => {
-  ajax("/organization/saveOrganization", data, "POST");
+  return ajax("/organization/saveOrganization", data, "POST");
 };
 // 上传照片
 export const uploadImg = (file) => {
