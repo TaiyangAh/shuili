@@ -6,34 +6,8 @@ import ajax from "./ajax";
 // import { Message } from "element-ui";
 
 //上传行政区划
-export const saveFormDate = ({
-  adabbrname,
-  adcode,
-  adfullname,
-  adgrad,
-  adname,
-  isms,
-  ismset,
-  ismsets,
-  upadcode,
-  upadname,
-}) =>
-  ajax(
-    "/allarea/saveAllarea",
-    {
-      adabbrname,
-      adcode,
-      adfullname,
-      adgrad,
-      adname,
-      isms,
-      ismset,
-      ismsets,
-      upadcode,
-      upadname,
-    },
-    "POST"
-  );
+export const saveFormDate = (data) =>
+  ajax("/allarea/saveAllarea", data, "POST");
 //上传用户信息
 export const saveUserInfor = (data) =>
   ajax("/userinfor/saveUserInfor", data, "POST");
@@ -41,19 +15,8 @@ export const saveUserInfor = (data) =>
 export const getAllarea = (grad) => ajax("/allarea/getAllarea?grad=" + grad);
 
 //上传公告牌信息
-export const saveWorkCard = ({
-  cardname,
-  cardsign,
-  level,
-  allareaid,
-  lati,
-  longti,
-}) => {
-  return ajax(
-    "/workcard/saveWorkCard",
-    { cardname, cardsign, level, allareaid, lati, longti },
-    "POST"
-  );
+export const saveWorkCard = (data) => {
+  return ajax("/workcard/saveWorkCard", data, "POST");
 };
 //获取组织机构列表
 export const getOrganizationList = (adcode) => {
@@ -62,4 +25,8 @@ export const getOrganizationList = (adcode) => {
 // 添加组织结构
 export const saveOrganizationList = (data) => {
   ajax("/organization/saveOrganization", data, "POST");
+};
+// 上传照片
+export const uploadImg = (file) => {
+  return ajax("/minio/upload", file, "POST");
 };

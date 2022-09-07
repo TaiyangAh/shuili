@@ -1,9 +1,9 @@
 <template>
   <van-form class="form" ref="form">
     &nbsp;<h2 style="margin-left: 30%;font-size:1.3rem">公示牌信息收集</h2>&nbsp;
-    <van-field v-model="ruleForm.cardname" required :rules="[{ required: true, message: '必填项' }]" label="名称" placeholder="请输入公示牌名称">
+    <van-field v-model="ruleForm.cardname" required :rules="[{ required: true, message: '' }]" label="名称" placeholder="请输入公示牌名称">
     </van-field>
-    <van-field v-model="ruleForm.cardsign" required label="编号" placeholder="请输入公示牌编号" :rules="[{ required: true, message: '必填项' }]">
+    <van-field v-model="ruleForm.cardsign" label="编号" placeholder="请输入公示牌编号">
     </van-field>
     <!-- <van-field name="radio" label="公示牌类别" required>
       <template #input>
@@ -25,7 +25,7 @@
       label="公示牌类别"
       placeholder="请选择公示牌类别"
       @click="show2 = true"
-      :rules="[{ required: true, message: '必填项' }]"
+      :rules="[{ required: true, message: '' }]"
     />
     <van-popup v-model="show2" round position="bottom">
       <van-cascader
@@ -45,7 +45,7 @@
       label="行政区划"
       placeholder="请选择所在行政区划"
       @click="show1 = true"
-      :rules="[{ required: true, message: '必填项' }]"
+      :rules="[{ required: true, message: '' }]"
     />
     <van-popup v-model="show1" round position="bottom">
       <van-cascader
@@ -53,10 +53,14 @@
         v-model="cascaderValue"
         :options="options"
         @change="onChangeArea"
-        @close="show = false"
+        @close="show1 = false"
         @finish="onFinish"
       />
     </van-popup>
+
+    <van-field v-model="ruleForm.dpcontact" clearable label="联系部门" placeholder="请输入联系部门">
+    </van-field>
+
     <van-field
       v-model="fieldValue1"
       required
@@ -65,7 +69,7 @@
       label="经纬度"
       placeholder="请选择所在经纬度"
       @click="show = true"
-      :rules="[{ required: true, message: '必填项' }]"
+      :rules="[{ required: true, message: '' }]"
     />
     <van-popup v-model="show"
       position="bottom"
@@ -87,6 +91,7 @@
           </bm-info-window>
         </bm-marker>
       </baidu-map>
+    </van-popup>
       <!-- <van-cascader
         title="请选择所在地区"
         v-model="cascaderValue"
@@ -95,7 +100,6 @@
         @close="show = false"
         @finish="onFinish"
       /> -->
-    </van-popup>
     <!-- <van-field v-model="ruleForm.duties" required label="职务" placeholder="请输入职务">
     </van-field>
     <van-field v-model="ruleForm.tel" required label="电话" placeholder="请输入电话">
@@ -110,10 +114,34 @@
         </van-radio-group>
       </template>
     </van-field> -->
-    <van-field v-model="ruleForm.longti" required clearable label="经度" placeholder="请输入公示牌所在经度" :rules="[{ required: true, message: '必填项' }]">
+    <van-field v-model="ruleForm.longti" required clearable label="经度" placeholder="请输入公示牌所在经度" :rules="[{ required: true, message: '' }]">
     </van-field>
-    <van-field v-model="ruleForm.lati" required clearable label="纬度" placeholder="请输入公示牌所在纬度" :rules="[{ required: true, message: '必填项' }]">
+    <van-field v-model="ruleForm.lati" required clearable label="纬度" placeholder="请输入公示牌所在纬度" :rules="[{ required: true, message: '' }]">
     </van-field>
+    <van-field v-model="ruleForm.position" clearable label="补充地名" placeholder="请输入补充地名">
+    </van-field>
+    <van-field v-model="ruleForm.bengin" clearable label="河段起点" placeholder="请输入河段起点">
+    </van-field>
+    <van-field v-model="ruleForm.end" clearable label="河段终点" placeholder="请输入河段终点">
+    </van-field>
+    <van-field v-model="ruleForm.len" clearable label="河段长度" placeholder="请输入河段长度">
+    </van-field>
+    <van-field v-model="ruleForm.phone" clearable label="监督电话" placeholder="请输入监督电话">
+    </van-field>
+    <van-field v-model="ruleForm.areamaster" clearable label="区级河长姓名" placeholder="请输入区级河长姓名">
+    </van-field>
+    <van-field v-model="ruleForm.rvworker" clearable label="河段专管员" placeholder="请输入河段专管员">
+    </van-field>
+    <van-field v-model="ruleForm.duties" clearable label="河长职责" placeholder="请输入河长职责">
+    </van-field>
+    <van-field v-model="ruleForm.target" clearable label="治理目标" placeholder="请输入治理目标">
+    </van-field>&nbsp;
+    <div>
+      <span style="margin-left:5%">上传公示牌照片</span>
+      <van-uploader style="margin-left:35%" :after-read="afterRead" :max-count="1"
+       @oversize="onOversize" v-model="fileList" upload-icon="plus"/>
+    </div>
+
     <div style="margin: 16px;">
       <van-button round block type="info" @click="onSubmit" class="button">提交</van-button>
     </div>
@@ -122,7 +150,8 @@
 </template>
 
 <script>
-import {getAllarea, saveWorkCard} from "@/api/index"
+import {getAllarea, saveWorkCard, uploadImg} from "@/api/index"
+import { Toast } from 'vant';
 
 export default {
     data() {
@@ -136,11 +165,11 @@ export default {
         cascaderValue:'',
         options:[],
         levelOptions:[
-          {text:"省",value:"0"},
-          {text:"市",value:"1"},
-          {text:"县",value:"2"},
-          {text:"乡",value:"3"},
-          {text:"村",value:"4"},
+          {text:"省级",value:"0"},
+          {text:"市级",value:"1"},
+          {text:"县级",value:"2"},
+          {text:"乡级",value:"3"},
+          {text:"村级",value:"4"},
         ],
         visible: false,
         myGeo: null,
@@ -155,11 +184,23 @@ export default {
           level:"",
           longti:"",
           lati:"",
+          dpcontact:"",
+          bengin:"",
+          end:"",
+          areamaster:"",
+          rvworker:"",
+          phone:"",
+          len:"",
+          position:"",
+          duties:"",
+          target:"",
+          image:"",
         },
+        fileList:[],
       };
     },
     methods: {
-        handler ({BMap, map}) {
+      handler ({BMap, map}) {
           const that = this;
           console.log(BMap, map)
           const BMAP_STATUS_SUCCESS = 0;
@@ -220,7 +261,6 @@ export default {
             }else{
               this.$notify({ type: 'error', message: res.data.message });
             }
-
           })
 
           }
@@ -265,7 +305,41 @@ export default {
           }
         })
       },
-      
+      /* 上传照片 */
+      afterRead(file){
+        // console.log('file',file)
+        // if (file instanceof Array) {
+        //   file.map((v) => {
+        //     v.status = "uploading";
+        //     v.message = "上传中...";
+        //     this.uploadImage(v);
+        //   });
+        // } else {
+          
+        // }
+        file.status = "uploading";
+        file.message = "上传中...";
+        this.uploadImage(file);
+      },
+      uploadImage(file){
+        const formData = new FormData();
+        formData.append('file',file.file)
+        uploadImg(formData).then((res)=>{
+          if(res.data.code == 200){
+            this.ruleForm.image = res.data.data.url;
+            file.status = 'done';
+          }else{
+            file.status = 'failed';
+            this.ruleForm.image = '';
+          }          
+        })
+      },
+      onOversize(file) {
+        // console.log(file)
+        if(file.file.size > 1024000){
+          Toast('文件大小不能超过 1Mb');
+        }
+    },
     },
 
     created() {
