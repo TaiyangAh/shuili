@@ -204,7 +204,7 @@
       />
     </van-popup>
     <van-popup style="width:80vw; height:200px;" v-model="addOrganizationBoxShow" round position="center">
-      <van-field class="addOrganizationItem" style="margin-top:30px;" v-model="ruleForm.organization" required label="组织机构名称：" placeholder="请输入组织机构名称">
+      <van-field class="addOrganizationItem" style="margin-top:35px;" v-model="ruleForm.organization" required label="组织机构名称：" placeholder="请输入组织机构名称">
       </van-field>
     <!-- <van-field name="radio" label="是否河长办：" v-if="ruleForm.role !=='0' && ruleForm.role !=='1' && ruleForm.role!=='2'">
       <template #input>
@@ -586,14 +586,15 @@ export default {
     .addOrganizationQueRenBox{
       .button{
         display: inline-block;
-        width: 60px;
-        margin-top: 10px;
+        width: 70px;
+        margin-top: 40px;
       }
       .button:nth-child(1){
-        margin-left: 25vw;
+        margin-left: 15vw;
       }
       .button:nth-child(2){
-        margin-left:5vw;
+        margin-left:15vw;
+        margin-right: 5vw;
       }
     }
     .bm-view {
