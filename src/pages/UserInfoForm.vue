@@ -4,10 +4,12 @@
     <van-field v-model="ruleForm.account" required clearable label="用户名" placeholder="请输入登录账号名" :rules="[{ required: true, message: '' }]">
     </van-field>
     <div style="position:relative">
-      <van-field name="pwd" v-model="ruleForm.pwd" required label="用户密码" placeholder="请输入密码" :type="passwordType" :rules="[{ required: true, message: '' },{ validator, message: '密码长度为6-16位，至少包含一个特殊字符、数字、字母，且不含空格',trigger:'onChange'}]">
-    </van-field>
-    <van-icon class="eye" @click="unshowPwd" v-if="isOpen" name="eye-o" />
-    <van-icon class="eye"  @click="showPwd" v-else name="closed-eye" /></div>
+      <van-field name="pwd" v-model="ruleForm.pwd" required label="用户密码" placeholder="请输入密码" :type="passwordType" 
+        :rules="[{ required: true, message: '' },{ validator, message: '密码长度为6-16位，至少包含一个特殊字符、数字、字母，且不含空格',trigger:'onBlur'}]">
+      </van-field>
+      <van-icon class="eye" @click="unshowPwd" v-if="isOpen" name="eye-o" />
+      <van-icon class="eye"  @click="showPwd" v-else name="closed-eye" />
+    </div>
 
     <van-field v-model="ruleForm.username" required clearable label="姓名" placeholder="请输入姓名" :rules="[{ required: true}]">
     </van-field>
@@ -148,12 +150,14 @@
         title="请选择行政级别"
         v-model="ruleForm.level"
         :options="levelList"
+        @change="onChangeLevel"
         @close="show8 = false"
         @finish="onFinish8"
       />
     </van-popup>
     <van-field
-      v-model="fieldValue" v-if="ruleForm.level!=='0'"
+      v-model="fieldValue" 
+      v-if="ruleForm.level!=='0'"
       required
       is-link
       readonly
@@ -330,7 +334,7 @@ export default {
       validator(val){
          // eslint-disable-next-line
         const flag1 = /^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[~!@#$%^&*()_+|<>,.?/\\:;'\[\]{}"]).{6,16}$/.test(val);
-        const flag2 = val.indexOf(' ') === -1;
+        const flag2 = val.indexOf(' ') === -1;//字符串中无空格
         console.log('flag1',flag1)
         console.log('flag2',flag2)
         return flag1 && flag2;
@@ -426,14 +430,21 @@ export default {
       onChangeArea({ value, selectedOptions}) {
       // 接口返回children数据，拿到数据后，动态添加
         this.orgLength = selectedOptions.length;
-        if(this.orgLength == this.ruleForm.level){
-          this.show = false;
-          return
-        }
+        // if(this.orgLength == this.ruleForm.level){
+        //   this.show = false;
+        //   return
+        // }
         getAllarea(value).then(res => {
           this.addTree(selectedOptions, res.data.data, value)
           this.getOrganizationList(this.cascaderValue)
         })
+      },
+      //行政级别选为省级，获取省级组织机构
+      onChangeLevel(){
+        if(this.ruleForm.level === '0'){
+          this.cascaderValue = 430000000000,
+          this.getOrganizationList(this.cascaderValue)
+        }
       },
 
       addTree(selectedOptions, children, value) {
@@ -555,7 +566,7 @@ export default {
         if(file.file.size > 1024000){
           Toast('文件大小不能超过 1Mb');
         }
-    },
+      },
     },
     created() {
       getAllarea(0).then(res => this.options = res.data.data.map(
