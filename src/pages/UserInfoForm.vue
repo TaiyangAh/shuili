@@ -278,6 +278,7 @@ export default {
           {text:"乡级",value:"3"},
           {text:"村级",value:"4"},
         ],
+        selectedLevelLength:"",
         ruleForm: {
           account: '',
           adgrad:'2',
@@ -347,8 +348,19 @@ export default {
           if(this.orgLength>=4){
             this.ruleForm.organization = '';
           }
+           /* 验证行政级别与行政区划是否一致 */
+          // if((this.selectedLevelLength !=="" )
+          // &&this.ruleForm.level != this.selectedLevelLength)
+          // {
+          //   Toast({
+          //     message:"行政级别请与行政区划保持一致",
+          //     type:"fail"
+          //   }),
+          //   this.fieldValue8 = "",
+          //   this.fieldValue = "",
+          // }
           saveUserInfor(this.ruleForm).then(res=>{
-            if(res.data.code==200){
+            if(res.data.code==200 ){
               // console.log("----已提交")
               this.$notify({ type: 'success', message: '提交成功' });
             }else{
@@ -360,7 +372,27 @@ export default {
        // 全部选项选择完毕后，会触发 finish 事件
       onFinish({ selectedOptions }) {
         // console.log(selectedOptions)
-        this.fieldValue = selectedOptions.map((option) => option.text).join('/');
+        if(this.ruleForm.level === ''){
+          Toast({
+            message:"请先选择行政级别",
+            type:"fail"
+          }),
+          this.show = false,
+          this.cascaderValue = ''
+        }else{
+          this.selectedLevelLength = selectedOptions.length
+          if((selectedOptions.length != this.ruleForm.level)
+           && (this.ruleForm.level < selectedOptions.length) ){
+            Toast({
+              message:"行政级别请与行政区划保持一致",
+              type:"fail"
+            }),
+            this.fieldValue = "",
+            this.show = false
+          }else{
+            this.fieldValue = selectedOptions.map((option) => option.text).join('/');
+          }
+        }
       },
       onFinish1({ selectedOptions }) {
         this.show1 = false;
@@ -398,8 +430,18 @@ export default {
       //   this.fieldValue7 = selectedOptions.map((option) => option.text).join('/');
       // },
       onFinish8({ selectedOptions }){
-        this.show8 = false;
-        this.fieldValue8 = selectedOptions.map((option) => option.text).join('/');
+        if((this.selectedLevelLength !=="")
+          && this.selectedLevelLength!==this.ruleForm.level){
+            Toast({
+              message:"行政级别请与行政区划保持一致",
+              type:"fail"
+            }),
+            this.fieldValue8 = "",
+            this.show8 = false
+        }else{
+          this.show8 = false;
+          this.fieldValue8 = selectedOptions.map((option) => option.text).join('/');
+        }
       },
 
       async getAllarea(value) {
@@ -434,10 +476,13 @@ export default {
         //   this.show = false;
         //   return
         // }
-        getAllarea(value).then(res => {
-          this.addTree(selectedOptions, res.data.data, value)
-          this.getOrganizationList(this.cascaderValue)
-        })
+        // this.fieldValue = ''
+        if(this.ruleForm.level > this.orgLength){
+          getAllarea(value).then(res => {
+            this.addTree(selectedOptions, res.data.data, value)
+            this.getOrganizationList(this.cascaderValue)
+          })
+        }
       },
       //行政级别选为省级，获取省级组织机构
       onChangeLevel(){
