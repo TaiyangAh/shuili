@@ -219,8 +219,8 @@
       </template>
     </van-field> -->
      <div class="addOrganizationQueRenBox">
-            <van-button round block type="info" @click="addOrganization" class="button">确认</van-button>
-            <van-button round block type="info" @click="addOrganizationBoxShow = false" class="button">取消</van-button>
+          <van-button round block type="info" @click="addOrganization" class="button">确认</van-button>
+          <van-button round block type="info" @click="addOrganizationBoxShow = false" class="button">取消</van-button>
      </div>
     </van-popup>
     
@@ -381,17 +381,31 @@ export default {
           this.cascaderValue = ''
         }else{
           this.selectedLevelLength = selectedOptions.length
-          if((selectedOptions.length != this.ruleForm.level)
-           && (this.ruleForm.level < selectedOptions.length) ){
-            Toast({
-              message:"行政级别请与行政区划保持一致",
-              type:"fail"
-            }),
-            this.fieldValue = "",
+          console.log(selectedOptions.length)
+          if(this.ruleForm.level == selectedOptions.length){
             this.show = false
-          }else{
             this.fieldValue = selectedOptions.map((option) => option.text).join('/');
+            selectedOptions.length = 0
+            selectedOptions = ''
           }
+          // }
+          // if((selectedOptions.length != this.ruleForm.level)
+          //  && (this.ruleForm.level < selectedOptions.length) ){
+          //   Toast({
+          //     message:"行政级别请与行政区划保持一致",
+          //     type:"fail"
+          //   }),
+          //   this.fieldValue = "",
+          //   this.show = false
+          // else{
+            // this.fieldValue = selectedOptions.map((option) => option.text).join('/');
+            // if(this.ruleForm.level == selectedOptions.length){
+            //   this.show = false
+            // }
+          // }
+          this.selectedLevelLength = ""
+          this.orgLength = 0
+          // selectedOptions.length = 0
         }
       },
       onFinish1({ selectedOptions }) {
@@ -471,6 +485,8 @@ export default {
 
       onChangeArea({ value, selectedOptions}) {
       // 接口返回children数据，拿到数据后，动态添加
+        this.organizationOptions = []
+        this.getOrganizationList(this.cascaderValue)
         this.orgLength = selectedOptions.length;
         // if(this.orgLength == this.ruleForm.level){
         //   this.show = false;
@@ -482,7 +498,12 @@ export default {
             this.addTree(selectedOptions, res.data.data, value)
             this.getOrganizationList(this.cascaderValue)
           })
+          // selectedOptions = ''
+          // this.orgLength = 0
         }
+        // if(this.fieldValue8 == '市级'){
+        //   this.show = false
+        // }
       },
       //行政级别选为省级，获取省级组织机构
       onChangeLevel(){
@@ -490,6 +511,15 @@ export default {
           this.cascaderValue = 430000000000,
           this.getOrganizationList(this.cascaderValue)
         }
+        this.cascaderValue = ''
+        this.fieldValue = ''
+        this.selectedLevelLength = ''
+        this.organizationOptions = []
+        this.fieldValue3 = ''
+        // 清除市级选项子选项的缓存
+        this.options.forEach(item =>{
+          item.children = null
+        })
       },
 
       addTree(selectedOptions, children, value) {

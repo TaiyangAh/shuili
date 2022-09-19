@@ -33,12 +33,14 @@
         v-model="ruleForm.level"
         :options="levelOptions"
         @close="show2 = false"
+        @change="onChangeLevel"
         @finish="onFinish1"
       />
     </van-popup>
 
     <van-field
       v-model="fieldValue"
+      v-if="this.ruleForm.level !== '0'"
       required
       is-link
       readonly
@@ -197,6 +199,7 @@ export default {
           image:"",
         },
         fileList:[],
+        selectedLevelLength:'',
       };
     },
     methods: {
@@ -268,12 +271,41 @@ export default {
       },
        // 全部选项选择完毕后，会触发 finish 事件
       onFinish({ selectedOptions }) {
-        this.show = false;
-        this.fieldValue = selectedOptions.map((option) => option.text).join('/');
+        // this.show = false;
+        // this.fieldValue = selectedOptions.map((option) => option.text).join('/');
+        if(this.ruleForm.level === ''){
+          Toast({
+            message:"请先选择行政级别",
+            type:"fail"
+          }),
+          this.show = false,
+          this.cascaderValue = ''
+        }else{
+          this.selectedLevelLength = selectedOptions.length
+          if((selectedOptions.length != this.ruleForm.level)
+           && (this.ruleForm.level < selectedOptions.length) ){
+            Toast({
+              message:"行政级别请与行政区划保持一致",
+              type:"fail"
+            }),
+            this.fieldValue = "",
+            this.show = false
+          }else{
+            this.fieldValue = selectedOptions.map((option) => option.text).join('/');
+            if(this.ruleForm.level == selectedOptions.length){
+              this.show = false
+            }
+          }
+        }
       },
       onFinish1({ selectedOptions }) {
         this.show2 = false;
         this.fieldValue2 = selectedOptions.map((option) => option.text).join('/');
+        this.fieldValue = ''
+        // 清除市级选项子选项的缓存
+        this.options.forEach(item =>{
+          item.children = null
+        })
       },
 
       async getAllarea(value) {
@@ -289,11 +321,20 @@ export default {
 
       onChangeArea({ value, selectedOptions}) {
       // 接口返回children数据，拿到数据后，动态添加
-        getAllarea(value).then(res => {
-          this.addTree(selectedOptions, res.data.data, value)
-          // console.log('options',this.options)
-          // this.$forceUpdate();
-        })
+        // getAllarea(value).then(res => {
+        //   this.addTree(selectedOptions, res.data.data, value)
+        //   // console.log('options',this.options)
+        //   // this.$forceUpdate();
+        // })
+        this.orgLength = selectedOptions.length;
+        if(this.ruleForm.level > this.orgLength){
+          getAllarea(value).then(res => {
+            this.addTree(selectedOptions, res.data.data, value)
+            this.getOrganizationList(this.cascaderValue)
+          })
+        }else{
+          this.show1 = false
+        }
       },
 
       addTree(selectedOptions, children, value) {
@@ -339,7 +380,10 @@ export default {
         if(file.file.size > 1024000){
           Toast('文件大小不能超过 1Mb');
         }
-    },
+      },
+      onChangeLevel(){
+        this.cascaderValue = ''
+      }
     },
 
     created() {
